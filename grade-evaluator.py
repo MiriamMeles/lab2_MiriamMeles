@@ -11,7 +11,7 @@ def load_csv_data():
     filename = input("Enter the name of the CSV file to process (e.g., grades.csv): ")
 
     if not os.path.exists(filename):
-        print(f"Error: The file '{filename}' was not found. Nothing to grade")
+        print(f"Error: The file '{filename}' was not found. Nothing to grade!")
         sys.exit(1)
 
     assignments = []
@@ -21,16 +21,24 @@ def load_csv_data():
             reader = csv.DictReader(file)
             for row in reader:
                 # Convert numeric fields to floats for calculations
-                assignments.append({
-                    'assignment': row['assignment'],
-                    'group': row['group'],
-                    'score': float(row['score']),
-                    'weight': float(row['weight'])
-                })
+                try:
+                    assignments.append({
+                        'assignment': row['assignment'],
+                        'group': row['group'],
+                        'score': float(row['score']),
+                        'weight': float(row['weight'])
+                    })
+                except(ValueError, TypeError):
+                    print(f"Warning: Skipped a row with a missing or non-numeric value!"
+                        f"score/weight: {row}")   
                 
         return assignments
     except Exception as e:
         print(f"An error occurred while reading the file: {e}")
+        sys.exit(1)
+
+    if os.path.getsize(filename) == 0:
+        print(f"Error: Nothing to grade. The file '{filename}' is empty.")
         sys.exit(1)
     
 def evaluate_grades(data):
